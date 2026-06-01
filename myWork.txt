@@ -27,24 +27,41 @@ CalculatorAppSolution/
         │   └── XmlHistoryRepositoryTests.cs # Real File I/O tests (IHistoryRepository)
         └── TestResults/                  # Output directory for test reports
 
-2. PROJECT DEPENDENCIES
-- Framework: .NET 8.0 (or current)
-- Main App: Minimal dependencies (System.Xml.Linq for XML handling)
-- Test App: 
-  - xunit: Primary testing framework
-  - xunit.runner.visualstudio: Test explorer support
-  - Moq: Mocking library for isolating the orchestrator
-  - FluentAssertions: For highly readable assertions
-  - Microsoft.NET.Test.Sdk: Build tools for testing
+2. # Project Dependencies (Minimal)
+
+## Framework
+- .NET 8.0
+
+## Main App
+- No third-party runtime packages
+- Uses platform libraries only:
+  - System.Xml.Linq (XML read/write)
+
+## Test Project
+- Microsoft.NET.Test.Sdk (test infrastructure)
+- xunit (test framework)
+- xunit.runner.visualstudio (VS Test Explorer support)
+- Moq (mocking for service orchestration tests)
+- FluentAssertions (readable assertions)
+
+## Dependency Principle
+- Keep production dependencies minimal.
+- Keep testing dependencies explicit and scoped to the test project only.
+
 
 3. TEST INVENTORY
 
-| TestId | TestName                                 | Input                          | Expected Behavior                                                                 |
-|--------|------------------------------------------|--------------------------------|-----------------------------------------------------------------------------------|
-| U-01   | Calculator_Add_ReturnsCorrectSum         | a: 5.0, b: 3.5                 | Returns 8.5 (No dependencies)                                                     |
-| U-02   | Calculator_Divide_ByZeroThrows           | a: 10, b: 0                    | Throws DivideByZeroException                                                      |
-| U-03   | Service_Calculate_CallsDependencies      | op: "Add", a: 2, b: 3          | Calls ICalc.Add, creates record, calls IRepo.Save, returns 5                      |
-| U-04   | Service_GetHistory_ReturnsRepoData       | (none)                         | Returns the IReadOnlyList fetched from IRepo.Load()                               |
-| U-05   | Service_ClearHistory_SavesEmptyList      | (none)                         | Calls IRepo.Save() with an empty List<CalculationRecord>                          |
-| I-01   | XmlRepo_SaveAndLoad_PersistsCorrectly    | List of 2 valid records        | Load() reads the XML file and returns exact 2 records matching the saved state    |
-| I-02   | XmlRepo_Save_TruncatesToTenRecords       | List of 12 records             | Saves to XML, Load() returns only the 10 newest records (drops the oldest 2)      |
+| TestId | TestName                              | Input                   | Expected Behavior |
+|---|---|---|---|
+| U-01 | Calculator_Add_ReturnsCorrectSum | a: 5.0, b: 3.5 | Returns 8.5 |
+| U-02 | Calculator_Divide_ByZeroThrows | a: 10, b: 0 | Throws DivideByZeroException |
+| U-03 | Service_Calculate_CallsDependencies | op: Add, a: 2, b: 3 | Calls ICalculator.Add, appends record, calls IHistoryRepository.Save, returns 5 |
+| U-04 | Service_GetHistory_ReturnsRepoData | none | Returns IReadOnlyList from IHistoryRepository.Load |
+| U-05 | Service_ClearHistory_SavesEmptyList | none | Calls IHistoryRepository.Save with empty list |
+| I-01 | XmlRepo_SaveAndLoad_PersistsCorrectly | list of 2 records | Load returns same two records after Save |
+| I-02 | XmlRepo_Save_TruncatesToTenRecords | list of 12 records | Load returns newest 10 records only |
+
+## Test Split
+- Unit Tests: CalculatorTests, CalculatorServiceTests
+- Integration Tests: XmlHistoryRepositoryTests
+
