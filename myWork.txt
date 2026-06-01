@@ -1,0 +1,50 @@
+TESTING APPROACH & ARCHITECTURE: C# CALCULATOR APP
+
+1. PROJECT STRUCTURE
+CalculatorAppSolution/
+├── CalculatorApp.sln                     # Main solution file
+├── src/
+│   └── CalculatorApp/
+│       ├── CalculatorApp.csproj          # Main application project
+│       ├── Interfaces/
+│       │   ├── ICalculator.cs            # Pure calculation contract
+│       │   ├── IHistoryRepository.cs     # Persistence contract
+│       │   └── ICalculatorService.cs     # Orchestrator contract
+│       ├── Models/
+│       │   └── CalculationRecord.cs      # Record type for history
+│       ├── Services/
+│       │   ├── Calculator.cs             # Pure math implementation
+│       │   └── CalculatorService.cs      # Orchestrator implementation
+│       └── Repositories/
+│           └── XmlHistoryRepository.cs   # Real XML I/O implementation
+└── tests/
+    └── CalculatorApp.Tests/
+        ├── CalculatorApp.Tests.csproj    # Test project (References CalculatorApp)
+        ├── UnitTests/
+        │   ├── CalculatorTests.cs        # Pure math logic tests (ICalculator)
+        │   └── CalculatorServiceTests.cs # Orchestration tests with Moq (ICalculatorService)
+        ├── IntegrationTests/
+        │   └── XmlHistoryRepositoryTests.cs # Real File I/O tests (IHistoryRepository)
+        └── TestResults/                  # Output directory for test reports
+
+2. PROJECT DEPENDENCIES
+- Framework: .NET 8.0 (or current)
+- Main App: Minimal dependencies (System.Xml.Linq for XML handling)
+- Test App: 
+  - xunit: Primary testing framework
+  - xunit.runner.visualstudio: Test explorer support
+  - Moq: Mocking library for isolating the orchestrator
+  - FluentAssertions: For highly readable assertions
+  - Microsoft.NET.Test.Sdk: Build tools for testing
+
+3. TEST INVENTORY
+
+| TestId | TestName                                 | Input                          | Expected Behavior                                                                 |
+|--------|------------------------------------------|--------------------------------|-----------------------------------------------------------------------------------|
+| U-01   | Calculator_Add_ReturnsCorrectSum         | a: 5.0, b: 3.5                 | Returns 8.5 (No dependencies)                                                     |
+| U-02   | Calculator_Divide_ByZeroThrows           | a: 10, b: 0                    | Throws DivideByZeroException                                                      |
+| U-03   | Service_Calculate_CallsDependencies      | op: "Add", a: 2, b: 3          | Calls ICalc.Add, creates record, calls IRepo.Save, returns 5                      |
+| U-04   | Service_GetHistory_ReturnsRepoData       | (none)                         | Returns the IReadOnlyList fetched from IRepo.Load()                               |
+| U-05   | Service_ClearHistory_SavesEmptyList      | (none)                         | Calls IRepo.Save() with an empty List<CalculationRecord>                          |
+| I-01   | XmlRepo_SaveAndLoad_PersistsCorrectly    | List of 2 valid records        | Load() reads the XML file and returns exact 2 records matching the saved state    |
+| I-02   | XmlRepo_Save_TruncatesToTenRecords       | List of 12 records             | Saves to XML, Load() returns only the 10 newest records (drops the oldest 2)      |
