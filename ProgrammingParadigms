@@ -1,8 +1,9 @@
-Object‑Oriented Programming
-Dependency Injection 
-ASP.NET Core Web API (MVC)
-Repository Pattern
-Event‑Driven / Serverless (Azure Functions)
-Asynchronous Programming
-ORM with Entity Framework Core
-Middleware Pipeline
+Interface-based abstraction
+Dependency inversion
+Separation of concerns
+Single Responsibility Principle
+Repository pattern
+Service layer
+Pure function 
+Encapsulation
+Testability-oriented design
