@@ -1,0 +1,67 @@
+TESTING APPROACH & ARCHITECTURE: C# CALCULATOR APP
+
+1. PROJECT STRUCTURE
+CalculatorAppSolution/
+├── CalculatorApp.sln                     # Main solution file
+├── src/
+│   └── CalculatorApp/
+│       ├── CalculatorApp.csproj          # Main application project
+│       ├── Interfaces/
+│       │   ├── ICalculator.cs            # Pure calculation contract
+│       │   ├── IHistoryRepository.cs     # Persistence contract
+│       │   └── ICalculatorService.cs     # Orchestrator contract
+│       ├── Models/
+│       │   └── CalculationRecord.cs      # Record type for history
+│       ├── Services/
+│       │   ├── Calculator.cs             # Pure math implementation
+│       │   └── CalculatorService.cs      # Orchestrator implementation
+│       └── Repositories/
+│           └── XmlHistoryRepository.cs   # Real XML I/O implementation
+└── tests/
+    └── CalculatorApp.Tests/
+        ├── CalculatorApp.Tests.csproj    # Test project (References CalculatorApp)
+        ├── UnitTests/
+        │   ├── CalculatorTests.cs        # Pure math logic tests (ICalculator)
+        │   └── CalculatorServiceTests.cs # Orchestration tests with Moq (ICalculatorService)
+        ├── IntegrationTests/
+        │   └── XmlHistoryRepositoryTests.cs # Real File I/O tests (IHistoryRepository)
+        └── TestResults/                  # Output directory for test reports
+
+2. # Project Dependencies (Minimal)
+
+## Framework
+- .NET 8.0
+
+## Main App
+- No third-party runtime packages
+- Uses platform libraries only:
+  - System.Xml.Linq (XML read/write)
+
+## Test Project
+- Microsoft.NET.Test.Sdk (test infrastructure)
+- xunit (test framework)
+- xunit.runner.visualstudio (VS Test Explorer support)
+- Moq (mocking for service orchestration tests)
+- FluentAssertions (readable assertions)
+
+## Dependency Principle
+- Keep production dependencies minimal.
+- Keep testing dependencies explicit and scoped to the test project only.
+
+
+3. TEST INVENTORY
+
+| TestId | TestName                              | Input                   | Expected Behavior |
+|---|---|---|---|
+| U-01 | Calculator_Add_ReturnsCorrectSum | a: 5.0, b: 3.5 | Returns 8.5 |
+| U-02 | Calculator_Divide_ByZeroThrows | a: 10, b: 0 | Throws DivideByZeroException |
+| U-03 | Service_Calculate_CallsDependencies | op: Add, a: 2, b: 3 | Calls ICalculator.Add, appends record, calls IHistoryRepository.Save, returns 5 |
+| U-04 | Service_GetHistory_ReturnsRepoData | none | Returns IReadOnlyList from IHistoryRepository.Load |
+| U-05 | Service_ClearHistory_SavesEmptyList | none | Calls IHistoryRepository.Save with empty list |
+| I-01 | XmlRepo_SaveAndLoad_PersistsCorrectly | list of 2 records | Load returns same two records after Save |
+| I-02 | XmlRepo_Save_TruncatesToTenRecords | list of 12 records | Load returns newest 10 records only |
+
+## Test Split
+- Unit Tests: CalculatorTests, CalculatorServiceTests
+- Integration Tests: XmlHistoryRepositoryTests
+
