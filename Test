@@ -1,1 +1,56 @@
 
+<mxfile host="65bd71144e">
+    <diagram id="FP_Architecture" name="Functional Design">
+        <mxGraphModel dx="1000" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                
+                <mxCell id="pure_zone" value="PURE ZONE&#10;(Deterministic, Stateless, Core Logic)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;startSize=40;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="40" width="760" height="340" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="model_record" value="CalculationRecord (Immutable Data)&#10;=======================&#10;+ Operation: string&#10;+ Operand1: double&#10;+ Operand2: double&#10;+ Result: double&#10;+ Timestamp: DateTime" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pure_zone">
+                    <mxGeometry x="40" y="70" width="230" height="130" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="core_math" value="CoreMath (Pure Functions)&#10;=======================&#10;+ Operations: Dictionary&lt;string, Func&gt;&#10;  - &quot;Add&quot; =&gt; (a, b) =&gt; a + b&#10;  - &quot;Subtract&quot; =&gt; (a, b) =&gt; a - b&#10;  - &quot;Multiply&quot; =&gt; (a, b) =&gt; a * b&#10;  - &quot;Divide&quot; =&gt; (a, b) =&gt; a / b" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pure_zone">
+                    <mxGeometry x="450" y="70" width="270" height="130" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="orchestrator" value="CalculatorOrchestrator (Higher-Order Function)&#10;=================================================================&#10;+ Calculate(op, a, b, getMathOp, loadHistory, saveHistory, getCurrentTime) : double" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="pure_zone">
+                    <mxGeometry x="40" y="240" width="680" height="70" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.16;entryY=0;entryDx=0;entryDy=0;strokeColor=#666666;dashed=1;" edge="1" parent="pure_zone" source="model_record" target="orchestrator">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.82;entryY=0;entryDx=0;entryDy=0;strokeColor=#666666;dashed=1;" edge="1" parent="pure_zone" source="core_math" target="orchestrator">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="impure_zone" value="IMPURE ZONE&#10;(Side-Effects, File I/O, System Infrastructure Boundaries)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;startSize=40;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="420" width="760" height="200" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="xml_history" value="XmlHistory (Side Effects)&#10;=======================&#10;+ LoadHistory(filePath)&#10;+ SaveHistory(filePath, records)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="impure_zone">
+                    <mxGeometry x="80" y="60" width="230" height="90" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="system_clock" value="System Environment&#10;=======================&#10;+ DateTime.UtcNow" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="impure_zone">
+                    <mxGeometry x="470" y="60" width="210" height="70" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="inject1" value="Injected as Lambda Action / Func" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeColor=#b85450;strokeWidth=2;" edge="1" parent="1" source="xml_history" target="orchestrator">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="inject2" value="Injected as Clock Provider Func" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;strokeColor=#b85450;strokeWidth=2;" edge="1" parent="1" source="system_clock" target="orchestrator">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
